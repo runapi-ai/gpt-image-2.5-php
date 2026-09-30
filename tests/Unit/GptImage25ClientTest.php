@@ -27,16 +27,14 @@ final class GptImage25ClientTest extends TestCase
     public function testCreatePostsCompactedBodyToCorrectPath(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, [], '{"id":"task_1","task_replayed":true}'),
-        ]);
+            new Response(200, [], '{"id":"task_1","task_replayed":true}')]);
         $client = new GptImage25Client(new ClientOptions(apiKey: 'k', httpClient: $transport, maxRetries: 0));
 
         $task = $client->textToImage->create([
             'model' => 'gpt-image-2.5-flare',
             'prompt' => 'A product render',
             'callback_url' => '',
-            'seed' => null,
-        ]);
+            'seed' => null]);
 
         $body = json_decode((string) $transport->requests[0]->getBody(), true, flags: JSON_THROW_ON_ERROR);
 
@@ -52,14 +50,12 @@ final class GptImage25ClientTest extends TestCase
     {
         $transport = new QueueHttpClient([
             new Response(200, [], '{"id":"task_1"}'),
-            new Response(200, [], '{"id":"task_1","status":"completed","images":[{"url":"https://file.runapi.ai/result"}],"extra_field":"kept"}'),
-        ]);
+            new Response(200, [], '{"id":"task_1","status":"completed","images":[{"url":"https://file.runapi.ai/result"}],"extra_field":"kept","usage":{"cost":0.05}}')]);
         $client = new GptImage25Client(new ClientOptions(apiKey: 'k', httpClient: $transport, maxRetries: 0));
 
         $result = $client->textToImage->run([
             'model' => 'gpt-image-2.5-flare',
-            'prompt' => 'A product render',
-        ]);
+            'prompt' => 'A product render']);
 
         self::assertInstanceOf(CompletedImageTaskResponse::class, $result);
         self::assertSame('https://file.runapi.ai/result', $result->images[0]->url);
@@ -71,8 +67,7 @@ final class GptImage25ClientTest extends TestCase
     {
         $transport = new QueueHttpClient([
             new Response(200, [], '{"id":"task_1"}'),
-            new Response(200, [], '{"id":"task_1","status":"completed"}'),
-        ]);
+            new Response(200, [], '{"id":"task_1","status":"completed","usage":{"cost":0.05}}')]);
         $client = new GptImage25Client(new ClientOptions(apiKey: 'k', httpClient: $transport, maxRetries: 0));
 
         $this->expectException(ValidationException::class);
@@ -80,23 +75,20 @@ final class GptImage25ClientTest extends TestCase
 
         $client->textToImage->run([
             'model' => 'gpt-image-2.5-flare',
-            'prompt' => 'A product render',
-        ]);
+            'prompt' => 'A product render']);
     }
 
 
     public function testSecondaryResourceUsesItsOwnPath(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, [], '{"id":"task_2"}'),
-        ]);
+            new Response(200, [], '{"id":"task_2"}')]);
         $client = new GptImage25Client(new ClientOptions(apiKey: 'k', httpClient: $transport, maxRetries: 0));
 
         $client->editImage->create([
             'model' => 'gpt-image-2.5-flare',
             'prompt' => 'A product render',
-            'source_image_urls' => ['https://file.runapi.ai/source.png'],
-        ]);
+            'source_image_urls' => ['https://file.runapi.ai/source.png']]);
 
         self::assertSame('/api/v1/gpt_image_2_5/edit_image', $transport->requests[0]->getUri()->getPath());
     }
