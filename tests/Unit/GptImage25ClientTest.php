@@ -34,6 +34,7 @@ final class GptImage25ClientTest extends TestCase
             'model' => 'gpt-image-2.5-flare',
             'prompt' => 'A product render',
             'callback_url' => '',
+            'background' => 'transparent',
             'seed' => null]);
 
         $body = json_decode((string) $transport->requests[0]->getBody(), true, flags: JSON_THROW_ON_ERROR);
@@ -42,6 +43,7 @@ final class GptImage25ClientTest extends TestCase
         self::assertTrue($task->taskReplayed);
         self::assertSame('/api/v1/gpt_image_2_5/text_to_image', $transport->requests[0]->getUri()->getPath());
         self::assertSame('gpt-image-2.5-flare', $body['model']);
+        self::assertSame('transparent', $body['background']);
         self::assertArrayNotHasKey('callback_url', $body);
         self::assertArrayNotHasKey('seed', $body);
     }
@@ -88,8 +90,11 @@ final class GptImage25ClientTest extends TestCase
         $client->editImage->create([
             'model' => 'gpt-image-2.5-flare',
             'prompt' => 'A product render',
-            'source_image_urls' => ['https://file.runapi.ai/source.png']]);
+            'source_image_urls' => ['https://file.runapi.ai/source.png'],
+            'background' => 'opaque']);
 
         self::assertSame('/api/v1/gpt_image_2_5/edit_image', $transport->requests[0]->getUri()->getPath());
+        $body = json_decode((string) $transport->requests[0]->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('opaque', $body['background']);
     }
 }

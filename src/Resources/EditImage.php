@@ -23,7 +23,8 @@ readonly class EditImage extends TypedConfiguredResource
      *   model: string,
      *   prompt: string,
      *   callback_url?: string,
-     *   output_resolution?: string
+     *   output_resolution?: string,
+     *   background?: string
      * } $params
      */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
@@ -49,7 +50,8 @@ readonly class EditImage extends TypedConfiguredResource
      *   model: string,
      *   prompt: string,
      *   callback_url?: string,
-     *   output_resolution?: string
+     *   output_resolution?: string,
+     *   background?: string
      * } $params
      */
     public function run(array $params, ?RequestOptions $options = null): CompletedImageTaskResponse
